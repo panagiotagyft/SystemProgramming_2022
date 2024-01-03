@@ -1,0 +1,115 @@
+#1
+SELECT airp.number 
+FROM airlines airl, airplanes airp, airlines_has_airplanes ahp
+WHERE  ahp.airlines_id=airl.id AND ahp.airplanes_id=airp.id AND airp.manufacturer="Airbus" AND airl.name="Lufthansa" ;
+
+
+
+#2
+SELECT airl.name 
+FROM airlines airl, airports a1, airports a2, routes r
+WHERE airl.id=r.airlines_id AND r.source_id=a1.id AND r.destination_id=a2.id AND a1.city="Athens" AND a2.city="Prague";
+
+
+
+#3
+SELECT count(distinct(p.id)) as number
+FROM passengers p, flights f, flights_has_passengers fhp, routes r, airlines airl
+WHERE fhp.flights_id=f.id AND fhp.passengers_id=p.id AND r.airlines_id=airl.id AND r.id=f.routes_id AND 
+	  airl.name="Aegean Airlines" AND f.date="2012-02-19";
+
+
+ 
+#4
+SELECT distinct 'yes' as result
+FROM flights f
+WHERE f.id = ANY
+	( select f.id
+	  from flights f, routes r, airports a1, airports a2, airlines airl
+      where r.source_id=a1.id AND r.destination_id=a2.id AND r.airlines_id=airl.id AND r.id=f.routes_id AND
+			airl.name="Olympic Airways" AND f.date="2014-12-12" AND a1.name="Athens El. Venizelos" AND a2.name="London Gatwick"
+	)
+UNION
+SELECT distinct 'no' as result
+FROM flights f
+WHERE f.id = ALL
+	( select f.id
+	  from flights f, routes r, airports a1, airports a2, airlines airl
+      where r.source_id=a1.id AND r.destination_id=a2.id AND r.airlines_id=airl.id AND r.id=f.routes_id AND
+			(airl.name<>"Olympic Airways" OR f.date<>"2014-12-12" OR a1.name<>"Athens El. Venizelos" OR a2.name<>"London Gatwick")
+	);
+
+
+
+#5	
+SELECT avg(2022-p.year_of_birth) as age
+FROM passengers p, flights f, flights_has_passengers fhp, routes r, airports a
+WHERE r.destination_id=a.id AND f.routes_id=r.id AND fhp.flights_id=f.id AND fhp.passengers_id=p.id AND a.city="Berlin";
+
+
+
+#6
+SELECT p.name, p.surname
+FROM passengers p, flights_has_passengers fhp, flights f, airplanes airp
+WHERE fhp.flights_id=f.id AND fhp.passengers_id=p.id AND f.airplanes_id=airp.id 
+GROUP BY p.id
+HAVING count(distinct airp.id)=1;
+
+
+
+#7
+SELECT distinct a1.city as 'from', a2.city as 'to'
+FROM airports a1, airports a2, routes r, flights f
+WHERE r.source_id=a1.id AND r.destination_id=a2.id AND r.id=f.routes_id  AND
+	  a1.id <> a2.id AND (f.date >= "2010-03-01" AND f.date <= "2014-07-17") AND
+      f.id in 
+		( SELECT distinct f.id
+		  FROM flights f
+          WHERE 
+			( SELECT count(distinct p.id)
+              FROM passengers p, flights_has_passengers fhp, routes r 
+              WHERE fhp.flights_id=f.id AND fhp.passengers_id=p.id AND r.id=f.routes_id 
+			 ) >  5);
+
+
+
+#8
+SELECT airl.name, airl.code, count(distinct r.id) as num
+FROM airlines airl, airplanes airp, routes r, airlines_has_airplanes lhp
+WHERE lhp.airlines_id=airl.id AND lhp.airplanes_id=airp.id AND r.airlines_id=airl.id AND
+      ( SELECT count(airp.id)
+        FROM airplanes airp, airlines_has_airplanes lhp
+	    WHERE lhp.airlines_id=airl.id AND lhp.airplanes_id=airp.id
+	   ) = 4
+GROUP BY airl.id;
+
+
+
+#9
+SELECT p.name, p.surname from passengers p
+WHERE NOT EXISTS
+	( SELECT * FROM airlines airl
+      WHERE airl.active="Y" AND NOT EXISTS
+	  ( SELECT * FROM flights_has_passengers fhp, flights f, routes r
+        WHERE fhp.flights_id=f.id AND fhp.passengers_id=p.id AND r.airlines_id=airl.id AND r.id=f.routes_id)
+     );
+
+
+
+    
+#10
+SELECT p.name, p.surname
+FROM passengers p
+WHERE ( SELECT count(distinct airl.name) 
+	    FROM flights_has_passengers fhp, flights f, routes r, airlines airl
+		WHERE  fhp.flights_id=f.id AND fhp.passengers_id=p.id  AND f.routes_id=r.id AND airl.id=airlines_id)=1 AND
+        ( SELECT distinct airl.name 
+          FROM flights_has_passengers fhp, flights f, routes r, airlines airl
+		  WHERE  fhp.flights_id=f.id AND fhp.passengers_id=p.id  AND f.routes_id=r.id AND airl.id=airlines_id)="Aegean Airlines"
+UNION
+SELECT p.name, p.surname
+FROM passengers p
+WHERE 
+	 ( SELECT count(f.id)
+	   FROM flights_has_passengers fhp, flights f
+	   WHERE fhp.flights_id=f.id AND fhp.passengers_id=p.id AND (f.date >= "2011-01-02" AND f.date <= "2013-12-31") ) > 1 ;

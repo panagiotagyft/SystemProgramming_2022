@@ -1,0 +1,48 @@
+Topic 1: Introduction to Linux
+
+https://youtu.be/XkunsbIIASU
+
+ 
+
+* Topic 2: Bash Scripting
+
+https://youtu.be/uF9BU5LBcxM
+
+ 
+
+* Topic 3: Error handling, low-level I/O, signals
+
+https://youtu.be/TScFuvrjXg4
+
+ 
+
+* Topic 4: Processes
+
+https://youtu.be/8c7RmApBrVg
+
+ 
+
+* Topic 5: Networking with sockets
+
+https://youtu.be/vdoqnaWvisE
+
+ 
+
+* Topic 6: Threads
+
+https://youtu.be/5OPUWcbK-ME
+
+ 
+
+* Topic 7: Interprocess Communication
+
+https://youtu.be/-t-3Z6HP_cI
+
+ 
+
+* Topic 8: Advanced Threads & Monitor-Style Programming
+
+https://youtu.be/ytfXUi3UDdE
+
+
+valgrind --leak-check=full --show-leak-kinds=all -v ./sniffer
