@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "doublylist_interface.h": "c",
+    "worker_interface.h": "c",
+    "linkedlist_interface.h": "c"
+  }
+}
